@@ -30,7 +30,7 @@ public class LoginPage {
         driver.findElement(signInButton).click();
     }
 
-    public void getSignInButtonText() {
+    public void assertSignInButtonText() {
         String text = driver.findElement(signInButton).getText();
         Assert.assertEquals("Войти", text);
     }

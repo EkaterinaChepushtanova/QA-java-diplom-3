@@ -5,7 +5,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class RegistrationPage {
-
     //кнопка "Войти"
     private final By signInButton = By.xpath(".//div/main//p/a");
     //кнопка "Восстановить пароль"

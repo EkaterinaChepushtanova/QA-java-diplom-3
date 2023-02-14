@@ -1,6 +1,10 @@
 package login;
 
+import api.User;
+import api.UserClient;
+import api.UserGenerator;
 import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,8 +20,12 @@ import java.util.concurrent.TimeUnit;
 public class LoginTest {
 
     private WebDriver driver;
-    public String email = "kate_310101@mail.ru";
-    public String password = "qwerty";
+    private final UserGenerator generator = new UserGenerator();
+    private final UserClient client = new UserClient();
+    private String accessToken;
+    private String email;
+    private String password;
+    User user = generator.randomData();
 
     @Before
     public void setUp() {
@@ -26,13 +34,17 @@ public class LoginTest {
         MainPage mainPage = new MainPage(driver);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
+        Response createResponse = client.create(user);
+        accessToken = createResponse.path("accessToken");
+        email = user.getEmail();
+        password = user.getPassword();
+
         mainPage.open();
     }
 
     @Test
     @DisplayName("Проверка входа по кнопке «Войти в аккаунт» на главной")
     public void loginThroughSignInButtonTest() {
-
         MainPage mainPage = new MainPage(driver);
         LoginPage loginPage = new LoginPage(driver);
 
@@ -40,7 +52,7 @@ public class LoginTest {
         loginPage.inputEmail(email);
         loginPage.inputPassword(password);
         loginPage.clickSignInButton();
-        mainPage.getButtonText();
+        mainPage.assertMakeOrderButtonText();
     }
 
     @Test
@@ -54,7 +66,7 @@ public class LoginTest {
         loginPage.inputEmail(email);
         loginPage.inputPassword(password);
         loginPage.clickSignInButton();
-        mainPage.getButtonText();
+        mainPage.assertMakeOrderButtonText();
     }
 
     @Test
@@ -72,7 +84,7 @@ public class LoginTest {
         loginPage.inputEmail(email);
         loginPage.inputPassword(password);
         loginPage.clickSignInButton();
-        mainPage.getButtonText();
+        mainPage.assertMakeOrderButtonText();
     }
 
     @Test
@@ -89,11 +101,14 @@ public class LoginTest {
         loginPage.inputEmail(email);
         loginPage.inputPassword(password);
         loginPage.clickSignInButton();
-        mainPage.getButtonText();
+        mainPage.assertMakeOrderButtonText();
     }
 
     @After
     public void tearDown() {
         driver.quit();
+        if (accessToken != null) {
+            client.delete(accessToken);
+        }
     }
 }

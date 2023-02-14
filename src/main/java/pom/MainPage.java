@@ -1,8 +1,11 @@
 package pom;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+
+import static org.hamcrest.Matchers.containsString;
 
 public class MainPage {
     // адрес сайта
@@ -14,24 +17,19 @@ public class MainPage {
     //кнопка "Личный кабинет"
     private final By personalCabinetButton = By.xpath((".//div/header/nav/a/p"));
     //текст "Соберите бургер"
-    private final By makeBurgerText = By.xpath((".//div/main/section[1]/h1"));
+    private final By makeBurgerText = By.xpath((".//h1[text()='Соберите бургер']"));
     //кнопка "Конструктор" в хэдере сайта
-    private final By constructorButton = By.xpath(".//div/header/nav/ul/li[1]/a/p");
+    private final By constructorButton = By.xpath(".//p[text()='Конструктор']");
     //логотип в хэдере сайта
     private final By logoButton = By.xpath(".//div[@class='AppHeader_header__logo__2D0X2']");
     //раздел "Булки" в конструкторе
     private final By bunsSection = By.xpath(".//div/span[text()='Булки']");
-    //текст "Булки"
-    private final By bunsText = By.xpath(".//div/h2[text()='Булки']");
     //раздел "Соусы" в конструкторе
     private final By saucesSection = By.xpath(".//div/span[text()='Соусы']");
-    //текст "Соусы"
-    private final By saucesText = By.xpath(".//div/h2[text()='Соусы']");
     //раздел "Начинки" в конструкторе
     private final By fillingsSection = By.xpath(".//div/span[text()='Начинки']");
-    //текст "Начинки"
-    private final By fillingsText = By.xpath(".//div/h2[text()='Начинки']");
-
+    //активная вкладка  //*[@id="root"]/div/main/section[1]/div[1]/div[2]   /span[@class='text text_type_main-default']
+    private final By activeTab = By.xpath(".//div//[@class='tab_tab__1SPyG tab_tab_type_current__2BEPc pt-4 pr-10 pb-4 pl-10 noselect']");
     private final WebDriver driver;
 
     public MainPage(WebDriver driver) {
@@ -46,7 +44,7 @@ public class MainPage {
         driver.findElement(loginButton).click();
     }
 
-    public void getButtonText() {
+    public void assertMakeOrderButtonText() {
         String text = driver.findElement(makeOrderButton).getText();
         Assert.assertEquals("Оформить заказ", text);
     }
@@ -55,7 +53,7 @@ public class MainPage {
         driver.findElement(personalCabinetButton).click();
     }
 
-    public void getMakeBurgerText() {
+    public void assertMakeBurgerText() {
         String text = driver.findElement(makeBurgerText).getText();
         Assert.assertEquals("Соберите бургер", text);
     }
@@ -80,18 +78,18 @@ public class MainPage {
         driver.findElement(fillingsSection).click();
     }
 
-    public void getBunsText() {
-        String text = driver.findElement(bunsText).getText();
-        Assert.assertEquals("Булки", text);
+    public void assertBunsTabActive() {
+        String text = driver.findElement(By.xpath(".//div[@style]/div[1]")).getAttribute("class");
+        MatcherAssert.assertThat(text, containsString("tab_tab_type_current"));
     }
 
-    public void getSaucesText() {
-        String text = driver.findElement(saucesText).getText();
-        Assert.assertEquals("Соусы", text);
+    public void assertSaucesTabActive() {
+        String text = driver.findElement(By.xpath(".//div[@style]/div[2]")).getAttribute("class");
+        MatcherAssert.assertThat(text, containsString("tab_tab_type_current"));
     }
 
-    public void getFillingsText() {
-        String text = driver.findElement(fillingsText).getText();
-        Assert.assertEquals("Начинки", text);
+    public void assertFillingsTabActive() {
+        String text = driver.findElement(By.xpath(".//div[@style]/div[3]")).getAttribute("class");
+        MatcherAssert.assertThat(text, containsString("tab_tab_type_current"));
     }
 }

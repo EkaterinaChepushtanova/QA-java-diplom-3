@@ -2,6 +2,7 @@ package registration;
 
 import api.User;
 import api.UserClient;
+import api.UserGenerator;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,12 +21,13 @@ import java.util.concurrent.TimeUnit;
 public class RegistrationTest {
 
     private WebDriver driver;
-    UserClient client = new UserClient();
-    public String email = "kate_310101@mail.ru";
-    public String password = "qwerty";
-    public String name = "Kate";
-    public String newEmail = RandomStringUtils.randomAlphanumeric(8) + "@mail.ru";
-    public String invalidPassword = "qwert";
+    private final UserGenerator generator = new UserGenerator();
+    private final UserClient client = new UserClient();
+    private String accessToken;
+    private String email;
+    private String password;
+    private String name;
+    User user = generator.randomData();
 
     @Before
     public void setUp() {
@@ -36,6 +38,7 @@ public class RegistrationTest {
 
         mainPage.open();
     }
+
     @Test
     @DisplayName("Проверка регистрации с валидными данными")
     public void registrationWithInvalidPasswordTest() {
@@ -45,17 +48,20 @@ public class RegistrationTest {
         PersonalCabinetPage personalCabinetPage = new PersonalCabinetPage(driver);
         RegistrationPage registrationPage = new RegistrationPage(driver);
 
+        email = user.getEmail();
+        password = user.getPassword();
+        name = user.getName();
+
         mainPage.clickPersonalCabinetButton();
         personalCabinetPage.clickRegistrationButton();
         registrationPage.inputName(name);
-        registrationPage.inputEmail(newEmail);
+        registrationPage.inputEmail(email);
         registrationPage.inputPassword(password);
         registrationPage.clickRegistrationButton();
-        loginPage.getSignInButtonText();
+        loginPage.assertSignInButtonText();
 
-        Response response = client.login(new User(newEmail, password));
-        String accessToken = response.path("accessToken");
-        client.delete(accessToken);
+        Response loginResponse = client.login(new User(email, password));
+        accessToken = loginResponse.path("accessToken");
     }
 
     @Test
@@ -66,17 +72,28 @@ public class RegistrationTest {
         PersonalCabinetPage personalCabinetPage = new PersonalCabinetPage(driver);
         RegistrationPage registrationPage = new RegistrationPage(driver);
 
+        email = user.getEmail();
+        name = user.getName();
+        user.setPassword(RandomStringUtils.randomAlphanumeric(4));
+        password = user.getPassword();
+
         mainPage.clickPersonalCabinetButton();
         personalCabinetPage.clickRegistrationButton();
         registrationPage.inputName(name);
         registrationPage.inputEmail(email);
-        registrationPage.inputPassword(invalidPassword);
+        registrationPage.inputPassword(password);
         registrationPage.clickRegistrationButton();
         registrationPage.getIncorrectPasswordText();
+
+        Response loginResponse = client.login(new User(email, password));
+        accessToken = loginResponse.path("accessToken");
     }
 
     @After
     public void tearDown() {
         driver.quit();
+        if (accessToken != null) {
+            client.delete(accessToken);
+        }
     }
 }

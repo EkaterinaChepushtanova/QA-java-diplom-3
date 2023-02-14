@@ -1,6 +1,10 @@
 package navigation;
 
+import api.User;
+import api.UserClient;
+import api.UserGenerator;
 import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +19,12 @@ import java.util.concurrent.TimeUnit;
 public class NavigationTest {
 
     private WebDriver driver;
-    public String email = "kate_310101@mail.ru";
-    public String password = "qwerty";
+    private final UserGenerator generator = new UserGenerator();
+    private final UserClient client = new UserClient();
+    private String accessToken;
+    private String email;
+    private String password;
+    User user = generator.randomData();
 
     @Before
     public void setUp() {
@@ -24,6 +32,11 @@ public class NavigationTest {
         driver = new ChromeDriver();
         MainPage mainPage = new MainPage(driver);
         driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+
+        Response createResponse = client.create(user);
+        accessToken = createResponse.path("accessToken");
+        email = user.getEmail();
+        password = user.getPassword();
 
         mainPage.open();
     }
@@ -41,7 +54,7 @@ public class NavigationTest {
         loginPage.inputPassword(password);
         loginPage.clickSignInButton();
         mainPage.clickPersonalCabinetButton();
-        personalCabinetPage.getButtonText();
+        personalCabinetPage.assertOrdersHistoryButtonText();
     }
 
     @Test
@@ -57,7 +70,7 @@ public class NavigationTest {
         loginPage.clickSignInButton();
         mainPage.clickPersonalCabinetButton();
         mainPage.clickConstructorButton();
-        mainPage.getMakeBurgerText();
+        mainPage.assertMakeBurgerText();
     }
 
     @Test
@@ -73,25 +86,45 @@ public class NavigationTest {
         loginPage.clickSignInButton();
         mainPage.clickPersonalCabinetButton();
         mainPage.clickLogoButton();
-        mainPage.getMakeBurgerText();
+        mainPage.assertMakeBurgerText();
     }
 
     @Test
-    @DisplayName("Проверка перехода к разделам «Булки», «Соусы», «Начинки»")
-    public void moveToBunsSectionTest() {
+    @DisplayName("Проверка перехода к разделам «Булки»")
+    public void moveToBunsSectionsTest() {
+
+        MainPage mainPage = new MainPage(driver);
+
+        mainPage.clickFillingsSection();
+        mainPage.clickBunsSection();
+        mainPage.assertBunsTabActive();
+    }
+
+    @Test
+    @DisplayName("Проверка перехода к разделу «Соусы»")
+    public void moveToSaucesSectionsTest() {
 
         MainPage mainPage = new MainPage(driver);
 
         mainPage.clickSaucesSection();
-        mainPage.getSaucesText();
+        mainPage.assertSaucesTabActive();
+    }
+
+    @Test
+    @DisplayName("Проверка перехода к разделу «Начинки»")
+    public void moveToFillingsSectionsTest() {
+
+        MainPage mainPage = new MainPage(driver);
+
         mainPage.clickFillingsSection();
-        mainPage.getFillingsText();
-        mainPage.clickBunsSection();
-        mainPage.getBunsText();
+        mainPage.assertFillingsTabActive();
     }
 
     @After
     public void tearDown() {
         driver.quit();
+        if (accessToken != null) {
+            client.delete(accessToken);
+        }
     }
 }
