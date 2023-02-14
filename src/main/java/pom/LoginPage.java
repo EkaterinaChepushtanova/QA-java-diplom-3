@@ -5,7 +5,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class LoginPage {
-
     //поле для ввода Email
     private final By emailField = By.xpath(".//div/form/fieldset[1]//input");
     //поле для ввода Пароля
