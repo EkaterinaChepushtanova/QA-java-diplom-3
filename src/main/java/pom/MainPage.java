@@ -28,8 +28,6 @@ public class MainPage {
     private final By saucesSection = By.xpath(".//div/span[text()='Соусы']");
     //раздел "Начинки" в конструкторе
     private final By fillingsSection = By.xpath(".//div/span[text()='Начинки']");
-    //активная вкладка  //*[@id="root"]/div/main/section[1]/div[1]/div[2]   /span[@class='text text_type_main-default']
-    private final By activeTab = By.xpath(".//div//[@class='tab_tab__1SPyG tab_tab_type_current__2BEPc pt-4 pr-10 pb-4 pl-10 noselect']");
     private final WebDriver driver;
 
     public MainPage(WebDriver driver) {
